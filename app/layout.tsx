@@ -1,5 +1,6 @@
 import './globals.css'
 import { Oswald, Montserrat, Rubik, Roboto } from 'next/font/google'
+import { AnalyticsWrapper } from '@/components/analytics' 
 
 const oswald = Oswald({
   subsets: ['latin'],
@@ -46,7 +47,7 @@ export default function RootLayout({
       `}
     >
       <body>{children}</body>
-
+      <AnalyticsWrapper />
     </html>
   )
 }
