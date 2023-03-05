@@ -11,7 +11,8 @@ export function BetaSignUpModal({onModalClose}: BetaSignUpModalProps) {
   const [open, setOpen] = useState(true)
   const [selectedOption, setSelectedOption] = useState("writer");
   const [email, setEmail] = useState('');
-  const [requestResult, setRequestResult] = useState('')
+  const [requestResult, setRequestResult] = useState('');
+  const [performingRequest, setPerformingRequest] = useState(false);
 
   const options = [
     { id: "writer", label: "I'm a Writer" },
@@ -32,7 +33,7 @@ export function BetaSignUpModal({onModalClose}: BetaSignUpModalProps) {
     event.preventDefault();
 
     // this is where your mailchimp request is made
-    
+    setPerformingRequest(true);
     await fetch('/api/signupusers', {
       body: JSON.stringify({
         email: email,
@@ -45,6 +46,7 @@ export function BetaSignUpModal({onModalClose}: BetaSignUpModalProps) {
 
       method: 'POST',
     }).then(res => {
+      setPerformingRequest(false)
       if (res.status != 201) setRequestResult('error')
       else {
         setRequestResult('success')
@@ -54,6 +56,7 @@ export function BetaSignUpModal({onModalClose}: BetaSignUpModalProps) {
       } 
     })
     .catch(err => {
+      setPerformingRequest(false)
       setRequestResult('error')
     });
   };
@@ -152,14 +155,26 @@ export function BetaSignUpModal({onModalClose}: BetaSignUpModalProps) {
                   </div>
                 </div>
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse items-center sm:px-6">
-                  <button
-                    type="submit"
-                    form="signup"
-                    className="inline-flex w-full justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-400 sm:ml-3 sm:w-auto"
-                    // onClick={() => setOpen(false)}
-                  >
-                    Sign up
-                  </button>
+                  {!performingRequest ? 
+                      <button
+                        type="submit"
+                        form="signup"
+                        className="inline-flex w-full justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-400 sm:ml-3 sm:w-auto"
+                        // onClick={() => setOpen(false)}
+                      >
+                        Sign up
+                      </button>
+                    :
+                      <button
+                        className=" disabled cursor-default inline-flex w-full justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto"
+                      >
+                        <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path className="opacity-75 text-cultured" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Processing...
+                      </button>
+                  }
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
