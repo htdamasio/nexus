@@ -4,12 +4,16 @@ import { useEffect, useState } from 'react'
 import { Dialog, Popover } from '@headlessui/react'
 import { List, X } from 'phosphor-react'
 import { BetaSignUpModal } from './BetaSignUpModal';
+import { useSession } from "next-auth/react"
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
 export function Header() {
+  const { data: session } = useSession()
+  console.log(session)
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [signUp, setSignUp] = useState(false)
