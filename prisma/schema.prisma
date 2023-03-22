@@ -25,6 +25,35 @@ enum Gender {
   OTHER
 } 
 
+enum TagType {
+  NORMAL
+  EXPLICIT
+  FANFICTION
+}
+
+enum BookStatus {
+  COMPLETED
+  ONGOING
+  ONAPPROVAL
+  REJECTED
+  NEEDADJUST
+}
+
+model Tag {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.TinyText
+  description String?  @db.TinyText
+  type  TagType
+  books Book[]
+}
+
+model Genre {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.TinyText
+  description String?  @db.TinyText 
+  books       Book[]  
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -37,6 +66,62 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  books         Book[]
+  reviews       Review[]
+  comments      Comment[]
+}
+
+model Book {
+  id            String     @id @default(cuid())
+  title         String     @db.Text
+  synopsis      String     @db.Text
+  cover         String     @db.Text
+  status        BookStatus @default(ONAPPROVAL)
+  tags          Tag[]
+  genre         Genre[]
+  user          User       @relation(fields: [authorid], references: [id])
+  authorid      String         
+  chapters      Chapter[]
+  reviews       Review[]
+
+  @@index([authorid])
+}
+
+model Chapter {
+  id            String    @id @default(cuid())
+  title         String    @db.Text
+  content       String    @db.Text
+  notes         String    @db.Text
+  book          Book      @relation(fields: [bookId], references: [id])
+  bookId        String
+  comments      Comment[]
+  
+  @@index([bookId])
+}
+
+model Review {
+  id            String    @id @default(cuid())
+  overralRate   Int       @db.SmallInt
+  content       String    @db.Text
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String 
+  book          Book      @relation(fields: [bookId], references: [id])
+  bookId        String
+
+  @@index([bookId])
+  @@index([userId])
+}
+
+model Comment {
+  id            String    @id @default(cuid())
+  content       String    @db.Text
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String 
+  chapter       Chapter   @relation(fields: [chapterId], references: [id])
+  chapterId     String
+
+  @@index([chapterId])
+  @@index([userId])
 }
 
 model Account {

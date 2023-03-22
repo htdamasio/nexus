@@ -4,11 +4,11 @@ import { AnalyticsWrapper } from '@/components/analytics'
 import { Provider } from '@/lib/provider'
 
 
-const oswald = Oswald({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-oswald'
-})
+// const oswald = Oswald({
+//   subsets: ['latin'],
+//   weight: ['400'],
+//   variable: '--font-oswald'
+// })
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -16,11 +16,11 @@ const montserrat = Montserrat({
   variable: '--font-montserrat'
 })
 
-const rubik = Rubik({
-  subsets: ['latin'],
-  weight: ['300', '400','700'],
-  variable: '--font-rubik' 
-});
+// const rubik = Rubik({
+//   subsets: ['latin'],
+//   weight: ['300', '400','700'],
+//   variable: '--font-rubik' 
+// });
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -42,9 +42,7 @@ export default function RootLayout({
     <html 
       lang="en" 
       className={`
-      ${oswald.variable} font-oswald 
       ${montserrat.variable} font-montserrat
-      ${rubik.variable} font-rubik
       ${roboto.variable} font-roboto
       `}
     >

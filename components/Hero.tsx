@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import { BetaSignUpModal } from "./BetaSignUpModal";
+// import { BetaSignUpModal } from "./BetaSignUpModal";
 
 export function Hero() {
   const [signUp, setSignUp] = useState(false)
@@ -75,7 +75,7 @@ export function Hero() {
 
           </div>
        </main>
-       {signUp ? <BetaSignUpModal onModalClose={handleModalCLose}/> : <></>}
+       {/* {signUp ? <BetaSignUpModal onModalClose={handleModalCLose}/> : <></>} */}
     </div>
   );
 }
