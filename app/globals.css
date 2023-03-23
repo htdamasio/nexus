@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@layer base {
+  h1 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[2rem];
+    @apply font-bold;
+    @apply my-[.67rem];
+  }
+  h2 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[1.5rem];
+    @apply font-bold;
+    @apply my-[.83rem];
+  }
+  h3 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[1.17rem];
+    @apply font-bold;
+    @apply my-[1rem];
+  }
+  h4 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[1rem];
+    @apply font-bold;
+    @apply my-[1.33rem];
+  }
+  h5 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[.83rem];
+    @apply font-bold;
+    @apply my-[1.67rem];
+  }
+  h6 {
+    @apply block;
+    @apply leading-[1.1];
+    @apply text-[.67ren];
+    @apply font-bold;
+    @apply my-[2.33rem];
+  }
+}

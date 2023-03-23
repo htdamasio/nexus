@@ -134,8 +134,10 @@ export default function Write() {
                     'clear_format',
                     'horizontal_rule',
                   ]}
+                  onChange={(string) => console.log('description -> ', string)}
                   menuJustify="end"
-                  {...register("synopsis")}
+                  content="<h1>Teste</h1>"
+                  // {...register("synopsis")}
                 />
               {/* <div className="flex flex-row flex-1 justify-between items-center"> */}
                 <p className="font-light text-red-400 text-sm mt-1">{errors.synopsis?.message}</p>
@@ -233,7 +235,7 @@ export default function Write() {
           </div>
           <div className="">
             <label htmlFor="email" className="block mb-2 text-lg text-gray-1 dark:text-gray-15">Chapter Content</label>
-            <textarea
+            {/* <textarea
               rows={10}
               placeholder="The content for your first chapter"
               className="
@@ -246,7 +248,50 @@ export default function Write() {
                   dark:bg-gray-2 dark:text-gray-15 dark:placeholder-gray-8 dark:border-gray-5 
                   dark:focus:ring-nexus-11 dark:focus:border-nexus-11" 
               {...register("chapterContent")}
-            />
+            /> */}
+            <TextEditor 
+                  className="
+                  w-full px-3 pt-2 pb-5 text-sm font-light
+                  placeholder-gray-9 
+                  border border-gray-12 
+                  rounded-md focus:outline-none 
+                  bg-white
+                  focus:ring-nexus-10 focus:border-nexus-10
+                  dark:bg-gray-2 dark:text-gray-15 dark:placeholder-gray-8 dark:border-gray-5 
+                  dark:focus:ring-nexus-11 dark:focus:border-nexus-11
+                  min-h-[12rem]"
+                  menuItems={[
+                    'undo',
+                    'redo',
+                    'divider',
+                    'heading_1',
+                    'heading_2',
+                    'heading_3',
+                    'heading_4',
+                    'divider',
+                    'font_size',
+                    'font_family',
+                    'divider',
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strike',
+                    'clear_format',
+                    'text_color',
+                    'divider',
+                    'blockquote',
+                    'horizontal_rule',
+                    'image',
+                    'divider',
+                    'align_left',
+                    'align_center',
+                    'align_right',
+                    'justify',
+                  ]}
+                  onChange={(string) => console.log('chapter -> ', string)}
+                  menuJustify="start"
+                  // {...register("chapterContent")}
+                />
             <p className="font-light text-red-400 text-sm mt-1">{errors.chapterContent?.message}</p>
             {/* <p className="flex flex-row flex-1 justify-end text-gray-1 dark:text-gray-15 text-sm">{synopsis.length > 0 ? synopsis.split(' ').length : 0} Words</p> */}
             

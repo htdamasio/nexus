@@ -4,11 +4,94 @@ import TaskList from '@tiptap/extension-task-list'
 import Highlight from '@tiptap/extension-highlight'
 import { MenuItem } from './MenuItem'
 import { Icon, TextB, TextItalic, TextStrikethrough, Code,
-        HighlighterCircle, TextHOne, TextHTwo, Paragraph,
+        HighlighterCircle, Paragraph,
+        TextHOne, TextHTwo, TextHThree, TextHFour, TextHFive,TextHSix,
         ListBullets, ListNumbers, ListChecks, CodeBlock,
         Quotes, Minus, ArrowLineDownLeft, TextT,
-        ArrowCounterClockwise, ArrowClockwise, TextUnderline } from '@phosphor-icons/react'
+        TextAlignLeft, TextAlignRight, TextAlignCenter, TextAlignJustify,
+        ArrowCounterClockwise, ArrowClockwise, TextUnderline, Image } from '@phosphor-icons/react'
+import { MenuSelect } from './MenuSelect'
+import { inter, montserrat, roboto } from '@/app/fonts' 
+import { MenuColor } from './MenuColor'
+import colors from 'tailwindcss/colors'
+import { MenuImage } from './MenuImage'
 
+let index = -1
+const allowedColors: Option[] = [] 
+const blackNWhite:Option[] = []
+Object.entries(colors).forEach(c => {
+  index++;
+  if (index > 4 && index < 27) {
+    // console.log(c)
+    // console.log(c[0], c[1])
+    if (typeof c[1] === 'object') {
+      Object.entries(c[1]).forEach(v => {
+        allowedColors.push({
+            name: `${c[0]}-${v[0]}`,
+            val : v[1] as string
+        })
+      })
+    } else {
+      allowedColors.push({
+        name: c[0],
+        val: c[1]
+      })
+    }
+  } else if (index > 2) {
+    blackNWhite.push({
+      name: c[0],
+      val: c[1]
+    })
+  }
+})
+allowedColors.push(blackNWhite[0])
+allowedColors.push(blackNWhite[1])
+
+
+const fontOptions = [
+  {
+    name: "Roboto",
+    val: roboto.style.fontFamily
+  },
+  {
+    name: "Inter",
+    val: inter.style.fontFamily
+  },
+  {
+    name: "Montserrat",
+    val: montserrat.style.fontFamily
+  },
+  {
+    name: "Comic Sans MS, Comic Sans",
+    val: "Comic Sans MS, Comic Sans"
+  },
+  {
+    name: "serif",
+    val: "serif"
+  },
+  {
+    name: "monospace",
+    val: "monospace"
+  },
+  {
+    name: "cursive",
+    val: "cursive"
+  }
+]
+
+// 8,9,10 ... 46, 47, 48
+const pxValues = Array.from({length: 41}, (_, index) => index + 8);
+const conversionTable = {
+  'px': 1,
+  'rem': 16
+}; // unit conversion table
+
+const fontSizesOptions = pxValues.map(value => {
+  return {
+    name: `${value}px`,
+    val: `${(value / conversionTable['rem']).toFixed(2)}rem`
+  }
+});
 
 interface MenuBarProps {
   editor: Editor,
@@ -16,13 +99,22 @@ interface MenuBarProps {
   justify: 'start' | 'center' | 'end',
 }
 
+export interface Option {
+  name: string,
+  val: string
+}
+
 export interface MenuItem {
   name: string,
   icon?: React.ReactNode,
   title?: string,
   action?: () => void
+  setAction?: (param: string) => boolean
   isActive?: null | (() => boolean)
-  type?: string
+  isSettedActive?: null | ((param: string) => boolean)
+  type?: string,
+  options?: Option[],
+  defaultValue?: string
 }
 
 export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
@@ -63,10 +155,6 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       isActive: () => editor.isActive('highlight'),
     },
     {
-      name: 'divider',
-      type: 'divider',
-    },
-    {
       icon: <TextHOne className="w-4 h-4 md:w-5 md:h-5"/>,
       title: 'Heading 1',
       name: 'heading_1',
@@ -79,6 +167,34 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       name: 'heading_2',
       action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
       isActive: () => editor.isActive('heading', { level: 2 }),
+    },
+    {
+      icon: <TextHThree className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Heading 3',
+      name: 'heading_3',
+      action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      isActive: () => editor.isActive('heading', { level: 3 }),
+    },
+    {
+      icon: <TextHFour className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Heading 4',
+      name: 'heading_4',
+      action: () => editor.chain().focus().toggleHeading({ level: 4 }).run(),
+      isActive: () => editor.isActive('heading', { level: 4 }),
+    },
+    {
+      icon: <TextHFive className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Heading 5',
+      name: 'heading_5',
+      action: () => editor.chain().focus().toggleHeading({ level: 5 }).run(),
+      isActive: () => editor.isActive('heading', { level: 5 }),
+    },
+    {
+      icon: <TextHSix className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Heading 6',
+      name: 'heading_6',
+      action: () => editor.chain().focus().toggleHeading({ level: 6 }).run(),
+      isActive: () => editor.isActive('heading', { level: 6 }),
     },
     {
       icon: <Paragraph className="w-4 h-4 md:w-5 md:h-5"/>,
@@ -116,10 +232,6 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       isActive: () => editor.isActive('codeBlock'),
     },
     {
-      name: 'divider',
-      type: 'divider',
-    },
-    {
       icon: <Quotes className="w-4 h-4 md:w-5 md:h-5"/>,
       title: 'Blockquote',
       name: 'blockquote',
@@ -133,10 +245,6 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       action: () => editor.chain().focus().setHorizontalRule().run(),
     },
     {
-      name: 'divider',
-      type: 'divider',
-    },
-    {
       icon: <ArrowLineDownLeft className="w-4 h-4 md:w-5 md:h-5"/>,
       title: 'Hard Break',
       name: 'hard_break',
@@ -148,10 +256,6 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       name: 'clear_format',
       action: () => editor.chain().focus().clearNodes().unsetAllMarks()
         .run(),
-    },
-    {
-      name: 'divider',
-      type: 'divider',
     },
     {
       icon: <ArrowCounterClockwise className="w-4 h-4 md:w-5 md:h-5"/>,
@@ -172,8 +276,69 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
       action: () => editor.chain().focus().toggleUnderline().run(),
       isActive: () => editor.isActive('underline'),
     },
+    {
+      icon: <TextAlignLeft className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Align Left',
+      name: 'align_left',
+      action: () => editor.chain().focus().setTextAlign('left').run(),
+      isActive: () => editor.isActive({ textAlign: 'left' }),
+    },
+    {
+      icon: <TextAlignRight className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Align Right',
+      name: 'align_right',
+      action: () => editor.chain().focus().setTextAlign('right').run(),
+      isActive: () => editor.isActive({ textAlign: 'right' }),
+    },
+    {
+      icon: <TextAlignCenter className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Align Center',
+      name: 'align_center',
+      action: () => editor.chain().focus().setTextAlign('center').run(),
+      isActive: () => editor.isActive({ textAlign: 'center' }),
+    },
+    {
+      icon: <TextAlignJustify className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Justify',
+      name: 'justify',
+      action: () => editor.chain().focus().setTextAlign('justify').run(),
+      isActive: () => editor.isActive({ textAlign: 'justify' }),
+    },
+    {
+      type: 'image',
+      icon: <Image className="w-4 h-4 md:w-5 md:h-5"/>,
+      title: 'Image',
+      name: 'image',
+      setAction: (src) => editor.chain().focus().setImage({src: src}).run()
+    },
+    {
+      // icon: <TextUnderline className="w-4 h-4 md:w-5 md:h-5"/>,
+      type: 'selector',
+      title: 'Font Family',
+      name: 'font_family',
+      setAction: (font: string) => editor.commands.setFontFamily(font),
+      isSettedActive: (font: string) => editor.isActive('textStyle', { fontFamily: font }),
+      options: fontOptions,
+      defaultValue: inter.style.fontFamily
+    },
+    {
+      // icon: <TextUnderline className="w-4 h-4 md:w-5 md:h-5"/>,
+      type: 'selector',
+      title: 'Font Size',
+      name: 'font_size',
+      setAction: (size: string) => editor.commands.setFontSize(size),
+      isSettedActive: (size: string) => editor.isActive('textStyle', { fontSize: size }),
+      options: fontSizesOptions,
+      defaultValue: '1.00rem'
+    },
+    {
+      type: 'color',
+      name: 'text_color',
+      setAction: (color: string) => editor.chain().focus().setColor(color).run(),
+      isSettedActive: (color: string) => editor.isActive('textStyle', {color: color}), 
+      options: allowedColors
+    }
   ]
-
 
   const menuItemsToDisplay: MenuItem[] = menuItems.map(i => {
     var item: MenuItem = {name: i};
@@ -188,11 +353,25 @@ export function MenuBar({ editor, menuItems, justify }: MenuBarProps) {
     }
     return item
   })
+
+  function getRenderItem(item: MenuItem) {
+    if (item.type === 'divider') {
+      return <div className="bg-gray-1 dark:bg-gray-15 !bg-opacity-10 h-[1.25rem] ml-2 mr-3 w-0.5" />;
+    } else if (item.type === 'selector') {
+      return <MenuSelect {...item} />
+    } else if (item.type === 'color') {
+      return <MenuColor  {...item}/>
+    } else if (item.type === 'image') {
+      return <MenuImage {...item} />
+    } else {
+      return <MenuItem {...item} />
+    }
+  }
   return (
-    <div className={`bg-white text-gray-2 dark:!bg-gray-2 dark:text-gray-14 rounded-t-xl flex flex-wrap py-1 px-3 gap-x-0.5 md:gap-x-1 items-center justify-${justify}`}>
+    <div className={`bg-white text-gray-2 dark:!bg-gray-2 dark:text-gray-14 rounded-t-xl flex flex-wrap py-1 px-3 gap-y-2 gap-x-0.5 md:gap-1 md:gap-x-1 items-center justify-${justify}`}>
       {menuItemsToDisplay?.map((item, index) => (
         <Fragment key={index}>
-          {item.type === 'divider' ? <div className="bg-gray-1 dark:bg-gray-15 !bg-opacity-10 h-[1.25rem] ml-2 mr-3 w-0.5" /> : <MenuItem {...item} />}
+          {getRenderItem(item)}
         </Fragment>
       ))}
     </div>

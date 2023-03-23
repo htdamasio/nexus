@@ -1,8 +1,5 @@
 import React from 'react'
-import remixiconUrl from 'remixicon/fonts/remixicon.symbol.svg'
 import { MenuItem } from './MenuBar'
-import { Icon } from '@phosphor-icons/react'
-
 
 export function MenuItem({ icon, title, action, isActive = null}: MenuItem) {
   return (
