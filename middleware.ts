@@ -8,7 +8,7 @@ import { getSession } from "next-auth/react";
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const protectedPaths = ["/write","/admin","/library","/author-dashboard", "/nexus-auth"];
+  const protectedPaths = ["/write","/admin","/library","/author-dashboard", "/nexus-auth", "/api/books", "api/uploads"];
   const isPathProtected = protectedPaths?.some((path) => pathname.includes(path));
   const res = NextResponse.next();
   if (isPathProtected) {

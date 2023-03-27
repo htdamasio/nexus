@@ -18,7 +18,9 @@ export function MenuColor({ title, setAction, isSettedActive = null, options}: M
           </span>
         </div>
         <input 
+          readOnly
           type="text" 
+          onBlur={() => setTogglePicker(!togglePicker)} 
           value={colorSelected}
           className="
           !ring-0 text-xs font-light 
@@ -43,7 +45,8 @@ export function MenuColor({ title, setAction, isSettedActive = null, options}: M
           ${togglePicker ? 'block absolute left-4 top-16':'hidden'}    
       `}>
         <div className="w-full rounded-t-md sm:rounded-xl border border-secondary-200 bg-gray-14 dark:bg-gray-3 shadow-lg dark:bg-secondary-800 dark:border-secondary-600 transition-all relative overflow-hidden max-h-56 py-3 px-2 sm:py-2 sm:px-1 sm:w-72 overflow-y-auto soft-scrollbar">
-          <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-0.5 max-w-[18rem] mx-auto">
+          <div  
+            className="flex flex-wrap items-center justify-center gap-1 sm:gap-0.5 max-w-[18rem] mx-auto">
             <span className="sr-only">dropdow-open</span>
             {options?.map((c, index) => {
               return (

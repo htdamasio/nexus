@@ -78,8 +78,8 @@ model Book {
   cover         String     @db.Text
   status        BookStatus @default(ONAPPROVAL)
   tags          Tag[]
-  genre         Genre[]
-  user          User       @relation(fields: [authorid], references: [id])
+  genres        Genre[]
+  author        User       @relation(fields: [authorid], references: [id])
   authorid      String         
   chapters      Chapter[]
   reviews       Review[]
@@ -92,7 +92,7 @@ model Chapter {
   title         String    @db.Text
   content       String    @db.Text
   notes         String    @db.Text
-  book          Book      @relation(fields: [bookId], references: [id])
+  book          Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId        String
   comments      Comment[]
   
@@ -105,7 +105,7 @@ model Review {
   content       String    @db.Text
   user          User      @relation(fields: [userId], references: [id])
   userId        String 
-  book          Book      @relation(fields: [bookId], references: [id])
+  book          Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId        String
 
   @@index([bookId])
@@ -117,7 +117,7 @@ model Comment {
   content       String    @db.Text
   user          User      @relation(fields: [userId], references: [id])
   userId        String 
-  chapter       Chapter   @relation(fields: [chapterId], references: [id])
+  chapter       Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   chapterId     String
 
   @@index([chapterId])

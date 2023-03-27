@@ -24,7 +24,7 @@ export function MobileFooterMenu() {
           <Image width={200*.2} height={300*.2} object-fit="contain" alt="book title" src="/nexus-book-placeholder.png"/>
           {/* Book */}
         </Link>
-        <Link href="/write" className="flex flex-col items-center cursor-pointer text-gray-700 hover:text-[#6818A5] dark:text-[#fafafa] dark:hover:text-[#DC97FF]">
+        <Link href="/write/new-book" className="flex flex-col items-center cursor-pointer text-gray-700 hover:text-[#6818A5] dark:text-[#fafafa] dark:hover:text-[#DC97FF]">
           <Pencil className="w-7 h-7"/>
           <p className="text-xs">Write</p>
         </Link>

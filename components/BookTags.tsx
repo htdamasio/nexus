@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import { Spinner } from './Spinner';
 import { Tag } from '@prisma/client';
+import { useEffect } from 'react';
 
 const fetcher = (url: string) => {
   const tagsLocalStorage = localStorage.getItem('nexuslit.tags');
@@ -31,14 +32,29 @@ const fetcher = (url: string) => {
 
 interface BookTagsProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  alreadyChecked?: number[],
+  rendered?: () => void
 }
 
-export function BookTags({onChange}: BookTagsProps) {
+export function BookTags({onChange, alreadyChecked, rendered}: BookTagsProps) {
   const { data, error } = useSWR('/api/booktags', fetcher)
   
+  useEffect(() => {
+    if(data) {
+      rendered && rendered()
+    }
+  }, [data])
   
   if (error) return <div>Error...</div>
   if (!data) return <Spinner size='sm' />
+
+  function verifyChecked(id: number) {
+    if (alreadyChecked && alreadyChecked.length) {
+      const idFound = alreadyChecked.find(g => g === id)
+      if (idFound) return true
+    }
+    return false
+  }
 
   const tags: Tag[] = data.tags
   return (
@@ -53,6 +69,7 @@ export function BookTags({onChange}: BookTagsProps) {
                   id={tag.id.toString()} 
                   type="checkbox" 
                   value={tag.id}
+                  checked={verifyChecked(tag.id)}
                   onChange={onChange}
                   className="
                     w-4 h-4

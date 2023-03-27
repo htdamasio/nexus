@@ -31,14 +31,23 @@ const fetcher = (url: string) => {
 
 interface BookGenresProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  alreadyChecked?: number[]
 }
 
-export function BookGenres({onChange}: BookGenresProps) {
+export function BookGenres({onChange, alreadyChecked}: BookGenresProps) {
   const { data, error } = useSWR('/api/bookgenres', fetcher)
   
   
   if (error) return <div>Error...</div>
   if (!data) return <Spinner size='sm' />
+
+  function verifyChecked(id: number) {
+    if (alreadyChecked && alreadyChecked.length) {
+      const idFound = alreadyChecked.find(g => g === id)
+      if (idFound) return true
+    }
+    return false
+  }
 
   const genres: Genre[] = data.genres
   return (
@@ -51,6 +60,7 @@ export function BookGenres({onChange}: BookGenresProps) {
                 id={genre.id.toString()} 
                 type="checkbox" 
                 value={genre.id}
+                checked={verifyChecked(genre.id)}
                 onChange={onChange}
                 className="
                   w-4 h-4

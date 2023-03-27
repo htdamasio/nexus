@@ -81,7 +81,7 @@ export default function Welcome(){
                     Read Now
                   </a>
                   <a 
-                    href="/write"
+                    href="/write/new-book"
                     className="
                                 flex flex-row items-center justify-center gap-1 
                                 w-32 p-2 
@@ -214,7 +214,7 @@ export default function Welcome(){
                     Read Now
                   </a>
                   <a 
-                    href="/write"
+                    href="/nexus-auth/write/new-book"
                     className="
                                 flex flex-row items-center justify-center gap-1 
                                 w-32 p-2 

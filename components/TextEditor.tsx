@@ -31,8 +31,7 @@ interface TextEditorProps {
   content?: string;
 }
 
-export function TextEditor({className, editable = true, menuItems = [], menuJustify = 'start', content = '', onChange}: TextEditorProps) {
- 
+export function TextEditor({className, editable = true, menuItems = [], menuJustify = 'start', content = '', onChange}: TextEditorProps) {  
   const extensions: Extensions = [
     StarterKit.configure({
       horizontalRule: false,
@@ -49,9 +48,10 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
   // )
   // extensions.push(
   //   Placeholder.configure({
+  //     emptyEditorClass: "first:before:content-[attr(data-placeholder)] first:before:float-left first:before:h-0 first:before:pointer-events-none first:before:text-gray-12 first:before:text-[2rem]",
   //     placeholder: ({ node }) => {
   //       if (node.type.name === 'heading') {
-  //         return 'What’s the title?'
+  //         return 'Your chapter title'
   //       }
 
   //       return 'Can you add some further context?'
@@ -127,14 +127,14 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
     }))
   }
 
-
   const editor = useEditor({
     onCreate({editor}) {
-      editor.commands.setFontFamily(inter.style.fontFamily)
-      editor.commands.setFontSize('1rem')
+      if (!editable) {
+        editor.commands.setFontFamily(inter.style.fontFamily)
+        editor.commands.setFontSize('1rem')
+      }
     },
     onUpdate({editor}) {
-      // console.log(editor.getJSON())
       onChange && onChange(editor.getHTML());
     },
     onSelectionUpdate({ editor }) {
@@ -194,7 +194,7 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
         editor={editor} 
       />
       {editor && editable && 
-        <div className="absolute bottom-1 right-1.5 text-sm dark:font-light text-gray-5 dark:text-gray-12">
+        <div className="absolute bottom-1 right-8 bg-gray-15 dark:bg-gray-4 px-3 rounded-sm z-10 text-sm dark:font-light text-gray-5 dark:text-gray-12">
           {editor?.storage.characterCount.words()} words / {editor?.storage.characterCount.characters()} characters 
           {/* {console.log('storage', editor?.storage)} */}
         </div>

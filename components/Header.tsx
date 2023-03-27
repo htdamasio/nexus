@@ -39,7 +39,7 @@ export function Header() {
             <a href="#">
               <span className="h-8 w-auto font-montserrat font-extrabold text-4xl text-[#8530d1]">Nexus</span>
             </a>
-            <a href="/write" className="text-sm leading-6 text-charleston-green hover:text-base">
+            <a href="/nexus-auth/write/new-book" className="text-sm leading-6 text-charleston-green hover:text-base">
               <Tooltip animation="duration-300" content="Write your story">
                 <BookOpen className="w-7 h-7 hover:text-purple-800"/>
               </Tooltip>

@@ -4,8 +4,9 @@ import prisma from "@/lib/prisma"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
+import { AuthOptions } from "next-auth"
 
-export default NextAuth({
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
@@ -41,6 +42,7 @@ export default NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
+        console.log(token, user)
         token.role = user.role;
       }
       return token;
@@ -52,4 +54,6 @@ export default NextAuth({
       return session;
     }
   }
-})
+}
+
+export default NextAuth(authOptions);
