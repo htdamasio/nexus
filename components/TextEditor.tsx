@@ -20,6 +20,7 @@ import { MenuBar, MenuItem } from './MenuBar'
 import type { Extensions } from '@tiptap/react'
 import { Spinner } from './Spinner'
 import { inter } from '@/app/fonts'
+import { useEffect } from 'react'
 // import '../styles/textEditor.css'
 
 interface TextEditorProps {
@@ -29,9 +30,11 @@ interface TextEditorProps {
   menuJustify?: 'start' | 'center' | 'end',
   onChange?: (html: string) => void;
   content?: string;
+  forceContent?: boolean
 }
 
-export function TextEditor({className, editable = true, menuItems = [], menuJustify = 'start', content = '', onChange}: TextEditorProps) {  
+export function TextEditor({className, editable = true, menuItems = [], menuJustify = 'start', content = '', onChange, forceContent}: TextEditorProps) {  
+  
   const extensions: Extensions = [
     StarterKit.configure({
       horizontalRule: false,
@@ -138,7 +141,6 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
       onChange && onChange(editor.getHTML());
     },
     onSelectionUpdate({ editor }) {
-      // console.log('selection change -> ', editor)
       // The selection has changed.
     },
     editable: editable,
@@ -152,6 +154,11 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
 
     content: content,
   })
+
+  useEffect(() => {
+    forceContent && editor?.commands.setContent(content)
+  }, [forceContent, content])
+
   return (
   /**
    * Undo
@@ -196,7 +203,6 @@ export function TextEditor({className, editable = true, menuItems = [], menuJust
       {editor && editable && 
         <div className="absolute bottom-1 right-8 bg-gray-15 dark:bg-gray-4 px-3 rounded-sm z-10 text-sm dark:font-light text-gray-5 dark:text-gray-12">
           {editor?.storage.characterCount.words()} words / {editor?.storage.characterCount.characters()} characters 
-          {/* {console.log('storage', editor?.storage)} */}
         </div>
       }
     </div>

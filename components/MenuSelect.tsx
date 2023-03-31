@@ -3,7 +3,6 @@ import { MenuItem } from './MenuBar'
 
 export function MenuSelect({ title, setAction, defaultValue, isSettedActive = null, options}: MenuItem) {
   function setFont(font: string) {
-    console.log('handle click')
     setAction ? setAction(font) : null
   }
   return (

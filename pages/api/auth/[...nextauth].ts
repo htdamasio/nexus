@@ -42,7 +42,6 @@ export const authOptions: AuthOptions = {
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        console.log(token, user)
         token.role = user.role;
       }
       return token;

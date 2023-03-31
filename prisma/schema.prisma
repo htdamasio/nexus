@@ -83,6 +83,7 @@ model Book {
   authorid      String         
   chapters      Chapter[]
   reviews       Review[]
+  adminNotes    String?   @db.Text
 
   @@index([authorid])
 }
@@ -94,6 +95,7 @@ model Chapter {
   notes         String    @db.Text
   book          Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId        String
+  order         Int       @db.Int
   comments      Comment[]
   
   @@index([bookId])

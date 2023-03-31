@@ -2,10 +2,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "flowbite-react";
 import Image from "next/image";
-import { CaretUp, Divide, Info, Plus, X } from "phosphor-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Controller, useForm, useFieldArray, useWatch } from "react-hook-form";
-import { AddBookForm,AddChapterForm,addBookSchema } from "@/forms/addBookForm";
+import { AddBookForm,AddChapterForm,addBookSchema } from "@/validations/addBookForm";
 import { Genre, Tag } from "@prisma/client";
 import useSWR from 'swr'
 import { BookGenres } from "@/components/BookGenres";
@@ -14,12 +13,15 @@ import { TextEditor } from "@/components/TextEditor";
 import { useSession } from "next-auth/react";
 import { Reader } from "@/components/Reader";
 import { ChapterAdd } from "@/components/ChapterAdd";
-import { Disclosure } from '@headlessui/react'
+import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import crypto from 'crypto';
-import axios from "axios";
+import axios, { AxiosProgressEvent } from "axios";
 import { Spinner } from "@/components/Spinner";
-import { useRouter } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 import { UnexpectedProblemModal } from "@/components/UnexpectedProblemModal";
+import { Identifier, buildAddBookFormData, buildUpdateBookFormData } from "@/helpers/write";
+import { CheckCircle, CaretUp, Info, Plus, X, File } from "@phosphor-icons/react";
+import { GetBookResponse } from "@/validations/backend/books";
 
 interface WriteProps {
   genres: Genre[],
@@ -28,7 +30,7 @@ interface WriteProps {
 }
 const fetcher = (url: string, bookId: string|null|undefined) => {
   if (typeof bookId === 'string') {
-    return  fetch(url).then((res) => res.json())
+    return fetch(url).then((res) => res.json());
   } else {
     const book = {}
     const success = false;
@@ -36,11 +38,17 @@ const fetcher = (url: string, bookId: string|null|undefined) => {
   }
 };
 
+type uploadItem = {
+  id: number,
+  label: string,
+  progress: number
+}
+
 export default function Write({ params }: {params?: { id: string }}) {
   const router = useRouter()
   const {data: session} = useSession()
-  const {register, handleSubmit, control, watch, setError, setValue, formState: { errors }} = useForm<AddBookForm>({resolver: zodResolver(addBookSchema)})
-  const { fields, append, remove } = useFieldArray({
+  const {register, handleSubmit, control, watch, setError, setValue, formState: { errors }} = useForm<AddBookForm>({resolver: zodResolver(addBookSchema), defaultValues: { chapters: [] }})
+  const { fields, append, remove, prepend } = useFieldArray({
     control,
     name: "chapters",
   });
@@ -56,79 +64,97 @@ export default function Write({ params }: {params?: { id: string }}) {
   const selectedGenres = watch("selectedGenres");  
   const selectedTags = watch("selectedTags");  
 
+  const [uploadingFilesStatus, setUploadingFilesStatus] = useState('')
   const [preview, setPreview] = useState('')
   const [submitingForm, setSubmitingForm] = useState(false)
   const [unexpectedErrorModalOpen, setUnexpectedErrorModalOpen] = useState(false)
+  const [originalBookInfo, setOriginalBookInfo] = useState<GetBookResponse>({ 
+    chapters: [],
+    cover: '',
+    originalCoverName: '',
+    genres: [],
+    id: '',
+    tags: [],
+    synopsis: '',
+    title: ''
+   })
+  const [chapterIndex, setChapterIndex] = useState(0)
+  const [forceSynopsisContent, setForceSynopsisContent] = useState(false)
 
-  const bookId = params?.id === 'new-book' ? null : params?.id;
+  const [bookId, setBookId] = useState(params?.id === 'new-book' ? null : params?.id) 
   const { data, error } = useSWR([`/api/books/${bookId}`, bookId], ([url, bookId]) => fetcher(url, bookId), { revalidateOnFocus: false })
 
   useEffect(() => {
     if (data && data?.book) {
-      console.log('Receive the info -> ', data.book)
+      setForceSynopsisContent(true);
+      setTimeout(() => {setForceSynopsisContent(false)}, 3000);
+
+      setOriginalBookInfo(data.book);
+
+      const currentChapterIndex = data.book.chapters.length > 0  ? data.book.chapters[0].order : 0;
+      setChapterIndex(currentChapterIndex)
+
       setValue("title", data.book.title);
       setValue("synopsis", data.book.synopsis);
       setValue("cover", data.book.cover);
       setValue("selectedGenres", data.book.genres);
       setValue("selectedTags", data.book.tags);
       setValue("chapters", data.book.chapters);
-    }
+    } else if (data && !data.success) {
+      // TODO: Some error happended try again
+      setBookId(null);
+    } 
   }, [data])
 
   if (error) return <div>Error...</div>
-  if (!data) return <Spinner size='sm' />
+  if (!data) return (
+    <div className="absolute top-0 w-full h-screen bg-gray-15 dark:bg-gray-1">
+      <Spinner size='sm' />
+    </div>
+  )
 
   async function handleAddBookSubmit(data: AddBookForm) {
     setSubmitingForm(true);
+    setUploadingFilesStatus('Uploading Files...')
+    // const presignedUrls = await axios.get('/api/books/presignedUpload?cover=true&chapters=2').then(res => res.data)
 
+    let method = ''
+    let bodyData;
     if (bookId) {
-      console.log(data)
+      bodyData = await buildUpdateBookFormData(data, originalBookInfo, bookId);
+      method = 'PUT'
     } else {
-      const formData:any = new FormData();
-      if(data.cover)
-        formData.append('files', data.cover);
-        
-      data.chapters?.forEach(async c => {
-        var chapter = new Blob([c.content], {type: 'text/plain'});
-
-        formData.append('files', chapter, c.title);
-      })
-      formData.append("genres", data.selectedGenres)
-      formData.append("tags", data.selectedTags)
-      formData.append("synopsis", data.synopsis)
-      formData.append("title", data.title)
-      // formData.append("email", session?.user?.email ?? '')
-
-      data.chapters.forEach(item => {
-        const chapter = {
-          id: item.id,
-          title: item.title,
-          content: '',
-          notes: item.notes
-        }
-        if (data.chapters.length === 1) {
-          formData.append("chapters", [JSON.stringify(chapter)])
-        } else {
-          formData.append("chapters", JSON.stringify(chapter))
-        }
-      })
-      axios.post("/api/upload", formData, {headers: {'content-type': 'multipart/form-data'}})
-      .then(res => {
-        setSubmitingForm(false)
-        router.push('/nexus-auth/author-dashboard?bookAdded=true')
-        // redirect to author-dashboard
-      })
-      .catch(err => {
-        setSubmitingForm(false)
-      
-        if (err.response.status === 406) {
-          alert('Missing files')
-        } else {
-          setUnexpectedErrorModalOpen(true)
-        }
-      })
+      bodyData = await buildAddBookFormData(data);
+      method = 'POST'
     }
+    setUploadingFilesStatus('Saving Your Book...')
+    let url = '/api/books';
+    if (method === 'PUT') {
+      url = url + `/${bookId}`
+    }
+      axios(url, {
+        method: method,
+        headers: {
+          'content-type': 'application/json'
+        },
+        data: bodyData
+      })
+        .then(res => {
+          setSubmitingForm(false)
+          router.push('/nexus-auth/author-dashboard')
+          // redirect to author-dashboard
+        })
+        .catch(err => {
+          setSubmitingForm(false)
+        
+          if (err.response.status === 406) {
+            alert('Missing files')
+          } else {
+            setUnexpectedErrorModalOpen(true)
+          }
+        })
   }
+
   function getPreviewContent() {
     const chapter = chapters.find(c => c.id === preview)
     let response = `
@@ -149,11 +175,13 @@ export default function Write({ params }: {params?: { id: string }}) {
     const chapterKey = typeof window !== 'undefined' ? window.crypto.randomUUID() : crypto.randomUUID();
     const chapter: AddChapterForm = {
       id: chapterKey,
+      order: chapterIndex + 1,
       content: '',
       notes: '',
       title: ''
     }
-    append(chapter)
+    setChapterIndex(chapterIndex + 1);
+    prepend(chapter)
   }
 
   return (
@@ -246,6 +274,7 @@ export default function Write({ params }: {params?: { id: string }}) {
                       menuJustify="end"
                       // editable={false}
                       content={synopsis}
+                      forceContent={forceSynopsisContent}
                     />
                   )}
                 />  
@@ -335,7 +364,7 @@ export default function Write({ params }: {params?: { id: string }}) {
           </div>
           
           <div className="flex flex-col gap-y-1">
-          {chapters?.map((chapter, index) => 
+          {fields?.map((chapter, index) => 
             <Disclosure key={chapter.id}>
               <Disclosure.Button
                   data-id={chapter.id}
@@ -344,7 +373,7 @@ export default function Write({ params }: {params?: { id: string }}) {
                     px-4 py-2 text-left text-sm font-medium focus:outline-none
                     bg-gray-14 text-nexus-8 hover:bg-nexus-9 hover:text-gray-14
                     dark:bg-gray-3 dark:text-nexus-11 dark:hover:bg-nexus-10 dark:hover:text-gray-2 ">
-                  {chapter.title.length > 0 ? chapter.title : `Unnamed Chapter`}
+                  {chapters[index]?.title.length > 0 ? chapters[index].title : `Unnamed Chapter`}
                   <CaretUp className="h-5 w-5 ui-open:rotate-180 ui-open:transform" />
                 </Disclosure.Button>
                 <Disclosure.Panel data-id={chapter.id} className="border p-3 rounded-b-lg border-gray-2 dark:border-gray-14">
@@ -356,7 +385,7 @@ export default function Write({ params }: {params?: { id: string }}) {
                       errors={errors}
                       index={index}
                       register={register}
-                      content={chapter.content}
+                      content={chapters[index]?.content ? chapters[index].content : chapter.content}
                       last={index === chapters.length-1}
                     />
                 </Disclosure.Panel>
@@ -427,6 +456,58 @@ export default function Write({ params }: {params?: { id: string }}) {
 
       {/* Error Modal */}
       <UnexpectedProblemModal isOpen={unexpectedErrorModalOpen} onDismiss={(value) => setUnexpectedErrorModalOpen(value)} />
+          
+
+
+      {/* Upload Files Modal */}
+      <Transition appear show={submitingForm} as={Fragment}>
+        <Dialog
+          open={submitingForm}
+          onClose={() => {}}
+          className="relative z-50"
+        >
+          {/* The backdrop, rendered as a fixed sibling to the panel container */}
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          </Transition.Child>
+          {/* Full-screen container to center the panel */}
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            {/* The actual dialog panel  */}
+            <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-14 dark:bg-gray-2 p-6 text-left align-middle shadow-xl transition-all">
+                    {/* <Dialog.Title
+                      className="flex flex-row justify-between mb-2 text-lg font-normal text-gray-1 dark:text-gray-15"
+                    >
+                      Uploading Files
+                    </Dialog.Title> */}
+                    <div className="mt-2">
+                    <div className="animate-bounce flex flex-row flex-1 items-center justify-center gap-x-3 my-2 mx-3 text-xl font-normal dark:font-light text-gray-1 dark:text-gray-14">
+                      <File className="w-6 h-6"/>
+                      {uploadingFilesStatus}
+                    </div>
+                    </div>
+
+                  </Dialog.Panel>
+                </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }

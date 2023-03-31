@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs"
-import { registerSchema } from "@/forms/registerForm";
+import { registerSchema } from "@/validations/registerForm";
 
 export async function POST(req: NextRequest) {
   const userData = await req.json();
@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
       status: 201,
     })
   } catch (err) {
-    // console.log(err)
     return new Response(JSON.stringify({ error: 'unexpected error', success: false }), {
       status: 500,
     })

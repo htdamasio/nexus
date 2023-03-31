@@ -6,6 +6,7 @@ import { Pencil, X } from "phosphor-react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Tooltip } from "flowbite-react";
 import { useRouter } from 'next/navigation'
+import { Badge } from "./Badge";
 
 interface AuthorBookListProps {
   books: Book[],
@@ -48,6 +49,29 @@ export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
     })
     
   }
+  
+  
+  
+  
+  function getBadgeContent(status: string) {
+    switch(status) {
+      case 'ONAPPROVAL' :return 'Waiting Approval'
+      case 'COMPLETED' :return 'Completed'
+      case 'ONGOING' :return 'Ongoing'
+      case 'REJECTED' :return 'Rejected'
+      case 'NEEDADJUST' :return 'Need Adjust'
+    }
+  }
+
+  function getBadgeColor(status: string) {
+    switch(status) {
+      case 'ONAPPROVAL' :return 'nexus'
+      case 'COMPLETED' :return 'green'
+      case 'ONGOING' :return 'blue'
+      case 'REJECTED' :return 'red'
+      case 'NEEDADJUST' :return 'indigo'
+    }
+  }
 
   return (
     <>
@@ -59,70 +83,87 @@ export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
             className="relative w-full h-full"
           >
             {/* Card */}
-            <div className="relative flex flex-row rounded-md overflow-hidden m-2 bg-gray-14 dark:bg-gray-3 shadow-md dark:shadow-black gap-x-2">
-              <div className="w-auto">
-                <Image
-                  width={150}
-                  height={225} 
-                  src={book.cover.length > 0 ? book.cover : '/nexus-book-placeholder.png'} alt={book.title}/>  
-              </div>
-              
-              <div className="flex flex-1 flex-col justify-between p-2">
-                <div>
-                  <div className="flex flex-row flex-1 justify-between">
-                    <div className="text-2xl text-gray-1 dark:text-gray-15 font-normal">{book.title}</div>
-                    {isDeleting && book.id === selectedToDelete && 
-                        <div className="flex flex-row gap-x-2 items-center font-normal py-0.5 px-2 text-red-600">
-                          Deleting
-                          <Spinner full={false} size={4} weight="thin" color="red"/>
-                        </div>
-                      }
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <div className="flex flex-1 justify-between">
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Reviews</span>
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">{book?._count.reviews}</span>
-                    </div>
-                    <div className="flex flex-1 justify-between">
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Comments</span>
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">{getNumberOfComments(book.chapters)}</span>
-                    </div>
-                    {/* <div className="flex flex-1 justify-between">
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Likes</span>
-                      <span className="font-light text-gray-2 dark:text-gray-14 text-sm">245</span>
-                    </div> */}
-                  </div>
+            <Badge content={getBadgeContent(book.status)} color={getBadgeColor(book.status)}>
+              <div className="relative flex flex-row rounded-md overflow-hidden m-2 bg-gray-14 dark:bg-gray-3 shadow-md dark:shadow-black gap-x-2">
+                <div className="w-auto">
+                  <Image
+                    width={150}
+                    height={225} 
+                    src={book.cover.length > 0 ? book.cover : '/nexus-book-placeholder.png'} alt={book.title}/>  
                 </div>
-              
-                {/* Card Actions */}
-                <div className="flex flex-row justify-end px-3 gap-x-3 items-center">
-                  <Tooltip content="Edit book">
-                    <button
-                      onClick={() => router.push(`/nexus-auth/write/${book.id}`)}
-                      className="rounded-xl p-1 hover:bg-blue-300 text-blue-500 hover:text-blue-700"
-                    >
-                      <Pencil className="w-6 h-6"/>
-                    </button>
-                  </Tooltip>
-                  
-                  {/* <Tooltip content="Add chapter">
-                    <button>
-                      <Plus className="w-6 h-6 text-green-500"/>
-                    </button>
-                  </Tooltip> */}
-                  
-                  <Tooltip content="Delete book">
-                    <button 
-                      onClick={() => setBookToDelete(book.id)}
-                      className="rounded-xl p-1 hover:bg-red-300 text-red-500 hover:text-red-700"
-                    >
-                        <X className="w-6 h-6"/>
-                    </button>
-                  </Tooltip>
-                </div>                        
-              </div>        
-            </div>
+                
+                <div className="flex flex-1 flex-col justify-between p-2">
+                  <div>
+                    <div className="flex flex-row flex-1 justify-between">
+                      <div className="text-2xl text-gray-1 dark:text-gray-15 font-normal">{book.title}</div>
+                      {isDeleting && book.id === selectedToDelete && 
+                          <div className="flex flex-row gap-x-2 items-center font-normal py-0.5 px-2 text-red-600">
+                            Deleting
+                            <Spinner full={false} size={4} weight="thin" color="red"/>
+                          </div>
+                        }
+                    </div>
+                    
+                    <div className="flex flex-col">
+                      <div className="flex flex-1 justify-between">
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Reviews</span>
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">{book?._count.reviews}</span>
+                      </div>
+                      <div className="flex flex-1 justify-between">
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Comments</span>
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">{getNumberOfComments(book.chapters)}</span>
+                      </div>
+                      {/* <div className="flex flex-1 justify-between">
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">Likes</span>
+                        <span className="font-light text-gray-2 dark:text-gray-14 text-sm">245</span>
+                      </div> */}
+                    </div>
+                  </div>
+
+                  {['NEEDADJUST', 'REJECTED'].find(status => status === book.status) && 
+                  <div className="flex flex-col flex-1 my-1">
+                    <p className="text-base text-gray-2 dark:text-gray-13">Admin notes</p>
+                    <span 
+                      className="
+                        font-light overflow-y-scroll max-h-28 leading-[1.15rem] 
+                        text-gray-2 
+                        dark:text-gray-13
+                      "
+                      >
+                      {book.adminNotes}
+                      </span>
+                  </div>
+                  }
+                
+                  {/* Card Actions */}
+                  <div className="flex flex-row justify-end px-3 gap-x-3 items-center">
+                    <Tooltip content="Edit book">
+                      <button
+                        onClick={() => router.push(`/nexus-auth/write/${book.id}`)}
+                        className="rounded-xl p-1 hover:bg-blue-300 text-blue-500 hover:text-blue-700"
+                      >
+                        <Pencil className="w-6 h-6"/>
+                      </button>
+                    </Tooltip>
+                    
+                    {/* <Tooltip content="Add chapter">
+                      <button>
+                        <Plus className="w-6 h-6 text-green-500"/>
+                      </button>
+                    </Tooltip> */}
+                    
+                    <Tooltip content="Delete book">
+                      <button 
+                        onClick={() => setBookToDelete(book.id)}
+                        className="rounded-xl p-1 hover:bg-red-300 text-red-500 hover:text-red-700"
+                      >
+                          <X className="w-6 h-6"/>
+                      </button>
+                    </Tooltip>
+                  </div>                        
+                </div>        
+              </div>
+            </Badge>
 
           </li>
         )

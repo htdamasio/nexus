@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getToken } from "next-auth/jwt"
+import { CreateBook, CreateBookSchema,  } from "@/validations/backend/books";
 
 const bucketName = process.env.BUCKET_NAME
 const bucketRegion = process.env.BUCKET_REGION
@@ -61,8 +62,6 @@ export async function GET(req: NextRequest, {params}: {params?:{ bookId: string 
         
       })
 
-      // console.log(JSON.stringify({userBooks}))
-
       if (userBooks && userBooks.books) {
         for (const book of userBooks.books) {
           const newBook: Book = book
@@ -89,5 +88,46 @@ export async function GET(req: NextRequest, {params}: {params?:{ bookId: string 
     return new Response(JSON.stringify({ error: 'unexpected error', success: false }), {
       status: 500,
     })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const token = await getToken({ req, secret })
+  const email = token?.email
+  if(token && email) {
+    // add book
+    const bookData: CreateBook = await req.json();
+    const isValid = CreateBookSchema.safeParse(bookData);
+
+    if (!isValid.success) {
+      // TODO: delete from s3 (maybe use a job like bull ????) 
+      return new Response(JSON.stringify({ message: 'incorrect information', success: false, errors: isValid.error }), { status: 422})  
+    }
+    // validate using zod 
+
+    await prisma.book.create({
+      data: {
+        cover: bookData.cover,
+        synopsis: bookData.synopsis,
+        title: bookData.title,
+        author: {
+          connect: {
+            email: email
+          }
+        }, 
+        genres: {
+          connect: bookData.genres,
+        },
+        tags: {
+          connect: bookData.tags
+        },
+        chapters: {
+          create: bookData.chapters 
+        },
+      } 
+    })
+    return new Response(JSON.stringify({ message: 'book created', success: true }), { status: 201}) 
+  } else {
+    return new Response(JSON.stringify({ message: 'unauthenticated', success: false }), { status: 401}) 
   }
 }

@@ -61,8 +61,6 @@ export async function GET(req: NextRequest) {
         
       })
 
-      // console.log(JSON.stringify({userBooks}))
-
       if (userBooks && userBooks.books) {
         for (const book of userBooks.books) {
           const newBook: Book = book

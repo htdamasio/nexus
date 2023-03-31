@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react'
-import { User, Books, Gear, SignOut, BookOpen, UserCircle, SignIn, MagnifyingGlass } from 'phosphor-react'
+import { Fragment, useEffect, useState } from 'react'
 import { useSession, signOut } from "next-auth/react"
 import Image from 'next/image';
 import { Autocomplete } from './Autocomplete';
 import Link from 'next/link';
-import { Dropdown, Tooltip } from 'flowbite-react';
+import { Tooltip } from 'flowbite-react';
+import { Menu, Transition } from '@headlessui/react'
+import { User, Books, Gear, SignOut, BookOpen, UserCircle, SignIn, MagnifyingGlass, UserGear } from '@phosphor-icons/react';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -37,83 +38,144 @@ export function Header() {
       <nav className="w-11/12 mx-auto text-charleston-green flex max-w-7xl items-center justify-between py-2" aria-label="Global">
           <div className="hidden lg:flex lg:flex-row items-center gap-3">
             <a href="#">
-              <span className="h-8 w-auto font-montserrat font-extrabold text-4xl text-[#8530d1]">Nexus</span>
+              <span className="h-8 w-auto font-montserrat font-extrabold text-4xl text-nexus-8">Nexus</span>
             </a>
             <a href="/nexus-auth/write/new-book" className="text-sm leading-6 text-charleston-green hover:text-base">
               <Tooltip animation="duration-300" content="Write your story">
-                <BookOpen className="w-7 h-7 hover:text-purple-800"/>
+                <BookOpen className="w-7 h-7 text-nexus-9 hover:text-nexus-8 dark:text-nexus-11 dark:hover:text-nexus-10"/>
               </Tooltip>
             </a>
           </div>
         <div className="flex flex-1 gap-2 lg:gap-0 lg:justify-end items-center">
-          <div className="lg:hidden font-montserrat font-extrabold text-4xl text-[#8530d1]">N</div>
+          <div className="lg:hidden font-montserrat font-extrabold text-4xl text-nexus-8">N</div>
           <div className="hidden lg:block lg:flex-1 lg:mx-3">
-            <Autocomplete  options={books}/>
+            {/* <Autocomplete  options={books}/> */}
           </div>
           {
             session?.user ?
-            <div className="flex flex-1 lg:flex-none items-center gap-3 justify-end"> 
-              <p className="hidden lg:flex">Hi, {session.user.name}</p>
+            <div className="flex flex-1 lg:flex-none items-center gap-3 justify-end content-center"> 
+              <p className="hidden lg:flex text-nexus-7 dark:text-nexus-11">Hi, {session.user.name}</p>
               <MagnifyingGlass 
                 className="w-7 h-7 cursor-pointer lg:hidden text-[#121212] dark:text-[#fafafa]"
               />
-              <Dropdown
-                className="w-60"
-                arrowIcon={false}
-                inline={true}
-                label={
-                  session.user.image ?
-                  <Image
+              <Menu as="div" className="relative inline-block text-left ">
+                  <div>
+                  <Menu.Button className="inline-flex w-full justify-center">
+                  {session.user.image ?
+                   <Image
                     className="rounded-[9999px] focus:ring-purple-300 border-none" 
                     alt="User image" 
                     src={session.user.image} 
                     width={30} 
                     height={30}
                   />
-                  :
+                   :
                   <UserCircle weight='light' className="w-8 h-8 text-[#121212] dark:text-[#fafafa]"/>
-                }
-              >
-                <Dropdown.Header>
-                  <span className="block text-sm">
-                    {session.user.name}
-                  </span>
-                  <span className="block truncate text-sm font-medium">
-                    {session.user.email}
-                  </span>
-                </Dropdown.Header>
-                <Dropdown.Item className="hover:text-purple-800 dark:hover:text-purple-200">
-                  <div className="flex flex-row items-center gap-1">
-                  <User className="w-4 h-4"/>
-                  My Profile
+                  }  
+                    
+                    {/* Options
+                    <ArrowDown
+                      className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
+                      aria-hidden="true"
+                    /> */}
+                  </Menu.Button>
                   </div>
-                </Dropdown.Item>
-                <Dropdown.Item className="hover:text-purple-800 dark:hover:text-purple-200">
-                <div className="flex flex-row items-center gap-1">
-                  <Books className="w-4 h-4"/>
-                  Library
-                  </div>
-                </Dropdown.Item>
-                <Dropdown.Item className="hover:text-purple-800 dark:hover:text-purple-200">
-                <Link href='/nexus-auth/author-dashboard' className="flex flex-row items-center gap-1">
-                  <BookOpen className="w-4 h-4"/>
-                  Author Dashboard
-                  </Link>
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item className="hover:text-purple-800 dark:hover:text-purple-200">
-                <div className="flex flex-row items-center gap-1">
-                  <Gear className="w-4 h-4"/>
-                  Settings
-                  </div>
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => {signOut()}} className="hover:text-purple-800 dark:hover:text-purple-200">
-                <div className="flex flex-row items-center gap-1">
-                  <SignOut className="w-4 h-4"/>
-                  Sign out
-                  </div>
-                </Dropdown.Item>
-            </Dropdown>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-gray-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="px-1 py-1 ">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                          >
+                            <User className="mr-2 w-4 h-4"/>
+                            My Profile
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                          >
+                            <Books className="mr-2 w-4 h-4"/>
+                            Library
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                      {({ active }) => (
+                          <button
+                            className={`${
+                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                          >
+                            <Link href='/nexus-auth/author-dashboard' className="flex flex-row flex-1 items-center">
+                            <BookOpen className="mr-2 w-4 h-4"/>
+                            Author Dashboard
+                            </Link>
+                          </button>
+                      )}
+                      </Menu.Item>
+                    </div>
+                    <div className="px-1 py-1 ">
+                      <Menu.Item>
+                        {({ active }) => (
+                            <button
+                              className={`${
+                                active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                              } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            >
+                              <Link href='/admin' className="flex flex-row flex-1 items-center">
+                              <UserGear className="mr-2 w-4 h-4"/>
+                              Admin
+                              </Link>
+                            </button>
+                        )}
+                      </Menu.Item>
+                    </div>
+                    <div className="px-1 py-1">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                          >
+                            <Gear className="mr-2 w-4 h-4"/>
+                            Settings
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            onClick={() => {signOut()}}
+                            className={`${
+                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                          >
+                            <SignOut className="mr-2 w-4 h-4"/>
+                            Sign out
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
             </div>
             : 
             <div className="flex flex-1 lg:flex-none justify-end" >
@@ -121,7 +183,9 @@ export function Header() {
               <a
               href="/login"
               // className="flex flex-row items-center gap-2 py-1 px-2 rounded-md border-2 border-[#310055] text-[#310055] hover:text-[#3C0663] dark:border-[#DC97FF] dark:text-[#DC97FF] dark:hover:text-[#D283FF]"
-              className="flex flex-row items-center gap-2 py-1 px-2 rounded-md border-2 text-indigo-500 border-indigo-500 hover:border-indigo-600 focus:border-indigo-600"
+              className="flex flex-row items-center gap-2 py-1 px-2 rounded-md border-2 
+              text-nexus-9 hover:text-nexus-8 border-nexus-9 hover:border-nexus-8 focus:border-nexus-8
+              dark:text-nexus-10 dark:hover:text-nexus-9 dark:border-nexus-10 dark:hover:border-nexus-9 dark:focus:border-nexus-9"
               >
                 <SignIn className="w-4 h-4 "/>
                 Log in

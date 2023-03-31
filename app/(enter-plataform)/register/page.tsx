@@ -1,13 +1,13 @@
 "use client"
 import { GoogleLogo, FacebookLogo } from "phosphor-react";
-import { RegisterForm, registerSchema } from "@/forms/registerForm";
+import { RegisterForm, registerSchema } from "@/validations/registerForm";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { DatePicker } from "@/components/customDatePicker";
 import { Alert } from "flowbite-react";
 import axios from "axios";
 import { signIn, useSession } from "next-auth/react"
-import { LoginForm } from "@/forms/loginForm";
+import { LoginForm } from "@/validations/loginForm";
 import { redirect, useRouter } from "next/navigation";
 
 export default function Register() {

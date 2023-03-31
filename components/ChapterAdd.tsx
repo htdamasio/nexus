@@ -7,6 +7,7 @@ import { X } from "@phosphor-icons/react";
 interface ChapterAddProps {
   onPreview?: null | ((id: string) => void)
   onDelete?: (index: number ) => void,
+  onChange?: (id: string) => void,
   id: string,
   index: number;
   register: any;
@@ -16,7 +17,7 @@ interface ChapterAddProps {
   last: boolean
 }
 
-export function ChapterAdd({onPreview = null, id, onDelete, content, index, register, errors, control, last}: ChapterAddProps) {
+export function ChapterAdd({onPreview = null, id, onDelete, content, index, register, errors, control, last, onChange}: ChapterAddProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   return (
     <div className="flex flex-col gap-y-5">
@@ -126,7 +127,10 @@ export function ChapterAdd({onPreview = null, id, onDelete, content, index, regi
                 'justify',
               ]}
               content={content}
-              onChange={(string) => field.onChange(string)} 
+              onChange={(string) => {
+                onChange && onChange(id)
+                field.onChange(string)
+              }} 
               menuJustify="start"
             />
           )}
@@ -136,7 +140,7 @@ export function ChapterAdd({onPreview = null, id, onDelete, content, index, regi
       <div className="flex flex-row w-full lg:justify-end">
         <button 
             type="button"
-            disabled={last}
+            //disabled={last}
             className="
               disabled:cursor-not-allowed 
               w-full lg:w-auto text-sm font-normal py-0.5 px-2 border rounded-md

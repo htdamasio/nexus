@@ -22,8 +22,6 @@ const blackNWhite:Option[] = []
 Object.entries(colors).forEach(c => {
   index++;
   if (index > 4 && index < 27) {
-    // console.log(c)
-    // console.log(c[0], c[1])
     if (typeof c[1] === 'object') {
       Object.entries(c[1]).forEach(v => {
         allowedColors.push({

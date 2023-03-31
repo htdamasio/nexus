@@ -2,19 +2,21 @@ import {z, ZodType} from 'zod'
 
 export type AddChapterForm = {
   id: string,
+  order: number,
   title: string,
   content: string,
   notes: string
 }
 
 const htmlPattern = /<[^<]+?>/g;
-const countCharactersWithoutTags = (inputString: string) => {
+export const countCharactersWithoutTags = (inputString: string) => {
   const textWithoutTags = inputString.replace(htmlPattern, '');
   return textWithoutTags.length;
 };
 
 export const addChapterSchema: ZodType<AddChapterForm> = z.object({
   id: z.string(),
+  order: z.number(),
   title: z.string().min(1),
   content: z.string(),
   notes: z.string().min(0)
@@ -44,6 +46,7 @@ export const addBookSchema: ZodType<AddBookForm> = z.object({
 
 export const serverChapterSchema: ZodType<AddChapterForm> = z.object({
   id: z.string(),
+  order: z.number(),
   title: z.string().min(1),
   content: z.string(),
   notes: z.string().min(0)

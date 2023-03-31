@@ -1,14 +1,19 @@
 "use client"
 import { GoogleLogo } from "phosphor-react";
-import { LoginForm, loginSchema } from "@/forms/loginForm";
+import { LoginForm, loginSchema } from "@/validations/loginForm";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react"
+import { useRouter, redirect } from "next/navigation";
 import Link from "next/link";
 import { Alert } from "flowbite-react";
 
 export default function Register({searchParams}: {searchParams?: { callbackUrl: string }}) {
+  const {data: session} = useSession()
+  if (session?.user) {
+    redirect('/')
+  }
+
   const router = useRouter()
   const {register, handleSubmit, setError, formState: { errors }} = useForm<LoginForm>({resolver: zodResolver(loginSchema)})
 
