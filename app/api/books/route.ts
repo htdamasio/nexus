@@ -9,8 +9,8 @@ import { CreateBook, CreateBookSchema,  } from "@/validations/backend/books";
 
 const bucketName = process.env.BUCKET_NAME
 const bucketRegion = process.env.BUCKET_REGION
-const accessKey = process.env.ACCESS_KEY ?? ''
-const secretAccessKey = process.env.SECRET_ACCESS_KEY ?? ''
+const accessKey = process.env.S3_ACCESS_KEY ?? ''
+const secretAccessKey = process.env.SECRET_S3_ACCESS_KEY ?? ''
 
 const s3 = new S3Client({
   credentials: {
@@ -38,6 +38,7 @@ export async function GET(req: NextRequest, {params}: {params?:{ bookId: string 
               status: true,
               synopsis: true,
               title: true,
+              adminNotes: true,
               chapters: {
                 select: {
                   _count: {

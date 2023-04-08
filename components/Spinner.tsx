@@ -3,7 +3,7 @@ interface SpinnerProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number,
   weight?: 'thin' | 'normal' | 'bold'
   full?: boolean
-  color?: 'red' | 'default'
+  color?: 'red' | 'default' | 'blue' | 'green'
 }
 
 export function Spinner({size = 'md', weight = 'normal', full= true, color = 'default'}: SpinnerProps) {
@@ -31,6 +31,8 @@ export function Spinner({size = 'md', weight = 'normal', full= true, color = 'de
     switch(color) {
       case "default": return `border-t-nexus-8`
       case "red": return `border-t-red-500` 
+      case "blue": return 'border-t-blue-500'
+      case "green": return 'border-t-green-500'
     }
   }
   return (

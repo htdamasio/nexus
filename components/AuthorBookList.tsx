@@ -1,23 +1,27 @@
-import { Book } from "@prisma/client";
+import { Book, BookStatus } from "@prisma/client";
 import Image from "next/image";
 import { useState, Fragment } from "react";
 import { Spinner } from "./Spinner";
-import { Pencil, X } from "phosphor-react";
+import { Divide, Pencil, X } from "phosphor-react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Tooltip } from "flowbite-react";
 import { useRouter } from 'next/navigation'
 import { Badge } from "./Badge";
+import { getBadgeColor, getBadgeContent } from "@/utils/frontend/badge";
+import { Check } from "@phosphor-icons/react";
 
 interface AuthorBookListProps {
   books: Book[],
   onDelete: (id: string) => void
+  onChangeStatus: (id: string, newStatus: BookStatus) => void
 }
 
-export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
+export function AuthorBookList({ books, onDelete, onChangeStatus }: AuthorBookListProps) {
   const router = useRouter();
   const [bookToDelete, setBookToDelete] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [selectedToDelete, setSelectedToDelete] = useState('')
+  const [changingStatus, setChangingStatus] = useState(false)
 
 
   function getNumberOfComments(numberOfComments: []) {
@@ -49,33 +53,31 @@ export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
     })
     
   }
-  
-  
-  
-  
-  function getBadgeContent(status: string) {
-    switch(status) {
-      case 'ONAPPROVAL' :return 'Waiting Approval'
-      case 'COMPLETED' :return 'Completed'
-      case 'ONGOING' :return 'Ongoing'
-      case 'REJECTED' :return 'Rejected'
-      case 'NEEDADJUST' :return 'Need Adjust'
-    }
-  }
 
-  function getBadgeColor(status: string) {
-    switch(status) {
-      case 'ONAPPROVAL' :return 'nexus'
-      case 'COMPLETED' :return 'green'
-      case 'ONGOING' :return 'blue'
-      case 'REJECTED' :return 'red'
-      case 'NEEDADJUST' :return 'indigo'
-    }
+  function changeBookStatus(status: BookStatus, bookId: string) {
+    setChangingStatus(true)
+    fetch(`/api/books/${bookId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        status
+      })
+    })
+    .then(res => {
+      onChangeStatus(bookId, status)
+      setChangingStatus(false)
+    })
+    .catch(err => {
+      setChangingStatus(false)
+      // TODO: handle error
+    })
   }
 
   return (
     <>
-    <ol className="grid grid-cols-1 lg:grid-cols-2 gap-y-5 px-3 max-h-[28rem] overflow-auto">
+    <ol className="grid grid-cols-1 lg:grid-cols-2 gap-y-5 px-1 md:px-3 max-h-[28rem] overflow-auto">
       {books?.map((book: Book) => {
         return (
           <li 
@@ -83,7 +85,20 @@ export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
             className="relative w-full h-full"
           >
             {/* Card */}
-            <Badge content={getBadgeContent(book.status)} color={getBadgeColor(book.status)}>
+            <Badge 
+              content={
+                <div className="flex flex-row gap-x-2 items-center">
+                  {getBadgeContent(book.status)}
+                  {changingStatus && 
+                    <Spinner 
+                      size={3}
+                      weight="thin"
+                    />
+                  }
+                </div>
+              } 
+              color={getBadgeColor(book.status)}
+            >
               <div className="relative flex flex-row rounded-md overflow-hidden m-2 bg-gray-14 dark:bg-gray-3 shadow-md dark:shadow-black gap-x-2">
                 <div className="w-auto">
                   <Image
@@ -137,10 +152,23 @@ export function AuthorBookList({ books, onDelete }: AuthorBookListProps) {
                 
                   {/* Card Actions */}
                   <div className="flex flex-row justify-end px-3 gap-x-3 items-center">
+                    {['ONGOING', 'COMPLETED'].find(status => status === book.status) && 
+                      <div className="flex flex-1">
+                      <Tooltip content={book.status === BookStatus.ONGOING ? 'Mark book as completed':'Mark book as ongoing'}>
+                        <button
+                          onClick={() => changeBookStatus(book.status === BookStatus.ONGOING ? BookStatus.COMPLETED : BookStatus.ONGOING, book.id)}
+                          className="justify-self-start rounded-xl p-1 hover:bg-green-300 text-green-500 hover:text-green-700"
+                        >
+                          <Check className="w-6 h-6"/>
+                        </button>
+                      </Tooltip>
+                      </div>
+                    }
+
                     <Tooltip content="Edit book">
                       <button
                         onClick={() => router.push(`/nexus-auth/write/${book.id}`)}
-                        className="rounded-xl p-1 hover:bg-blue-300 text-blue-500 hover:text-blue-700"
+                        className="items-center rounded-xl p-1 hover:bg-blue-300 text-blue-500 hover:text-blue-700"
                       >
                         <Pencil className="w-6 h-6"/>
                       </button>

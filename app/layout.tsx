@@ -5,8 +5,6 @@ import { Provider } from '@/lib/provider'
 import { montserrat, roboto } from './fonts';
 
 
-
-
 export const metadata = {
   title: 'Nexus',
   description: 'Making great stories come to live',

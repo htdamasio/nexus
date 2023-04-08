@@ -205,10 +205,9 @@ export default function Write({ params }: {params?: { id: string }}) {
                     />
                   )}
                 />
-                <label htmlFor="cover-file" className="w-auto">
+                <label htmlFor="cover-file" className="relative block w-52 h-80">
                   <Image 
-                    width={200}
-                    height={300}
+                    fill
                     src={cover ? 
                             (typeof cover === 'string' ? cover :
                       URL.createObjectURL(cover)) : '/nexus-book-placeholder.png'}
@@ -240,7 +239,7 @@ export default function Write({ params }: {params?: { id: string }}) {
 
             {/* Book synopsys */}
             <div>
-              <label htmlFor="email" className="block mb-2 text-lg text-gray-1 dark:text-gray-15">Synopsis</label>
+              <label className="block mb-2 text-lg text-gray-1 dark:text-gray-15">Synopsis</label>
                 { (!bookId || (bookId && synopsis && synopsis.length)) && 
                  <Controller
                   name={`synopsis`}
@@ -406,7 +405,7 @@ export default function Write({ params }: {params?: { id: string }}) {
             </p>
           </div>
         </Alert>
-        <div className="mb-20 -mt-5 lg:mb-10 lg:mt-0 flex flex-row flex-1 justify-center gap-x-3">
+        <div className="mb-20 -mt-5 lg:mb-10 lg:mt-0 flex flex-row flex-1 justify-center gap-x-3">          
           <button 
             type="submit"
             className="flex-1 py-3 px-2 rounded 
@@ -456,8 +455,6 @@ export default function Write({ params }: {params?: { id: string }}) {
 
       {/* Error Modal */}
       <UnexpectedProblemModal isOpen={unexpectedErrorModalOpen} onDismiss={(value) => setUnexpectedErrorModalOpen(value)} />
-          
-
 
       {/* Upload Files Modal */}
       <Transition appear show={submitingForm} as={Fragment}>

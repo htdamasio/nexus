@@ -15,8 +15,8 @@ const randomFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
 
 const bucketName = process.env.BUCKET_NAME
 const bucketRegion = process.env.BUCKET_REGION
-const accessKey = process.env.ACCESS_KEY ?? ''
-const secretAccessKey = process.env.SECRET_ACCESS_KEY ?? ''
+const accessKey = process.env.S3_ACCESS_KEY ?? ''
+const secretAccessKey = process.env.SECRET_S3_ACCESS_KEY ?? ''
 const secret = process.env.NEXTAUTH_SECRET
 
 const s3 = new S3Client({

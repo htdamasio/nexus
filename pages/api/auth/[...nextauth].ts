@@ -40,16 +40,27 @@ export const authOptions: AuthOptions = {
     signIn: '/login',
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
+      if(trigger === 'update') {
+        if(session.image) token.picture = session.image
+        if(session.gender) token.gender = session.gender
+        if(session.birthday) token.birthday = session.birthday
+      }
+      
       if (user) {
         token.role = user.role;
+        token.birthday = user.birthday;
+        token.gender = user.gender
       }
       return token;
     },
     session({session, token}) {
       if (session.user) {
         session.user.role = token.role;
+        session.user.birthday = token.birthday;
+        session.user.gender = token.gender;
       }
+
       return session;
     }
   }

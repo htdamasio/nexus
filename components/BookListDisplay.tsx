@@ -3,7 +3,7 @@ import { AuthorBookList } from "./AuthorBookList";
 import useSWR from 'swr'
 import { Spinner } from "./Spinner";
 import { Scroll } from "@phosphor-icons/react";
-import { Book } from "@prisma/client";
+import { Book, BookStatus } from "@prisma/client";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export function BookListDisplay() {
@@ -23,6 +23,15 @@ export function BookListDisplay() {
     setBooks(books.filter(b => b.id !== id)); 
   }
 
+  function handleBookChangeStatus(id: string, newStatus: BookStatus) {
+    setBooks(books.map(b => {
+      if(b.id === id) {
+        b.status = newStatus
+      }
+      return b
+    })); 
+  }
+
   return (
     <div className={`flex flex-col ${(books && books.length) ? 'mt-8': ''} flex-1 h-full`}>
         {
@@ -30,7 +39,7 @@ export function BookListDisplay() {
         <div className="overflow-x-auto rounded-lg flex-1">
             <div className="align-middle inline-block min-w-full">
               <div className="shadow overflow-hidden sm:rounded-lg">
-                  <AuthorBookList  books={books} onDelete={handleDelete}/>
+                  <AuthorBookList  books={books} onDelete={handleDelete} onChangeStatus={handleBookChangeStatus}/>
               </div>
             </div>
         </div>

@@ -20,7 +20,7 @@ export function Badge({content, children, color='nexus'}: BadgeProps) {
     <div className="bg-transparent">
       <div className="relative py-2">
         <div className="absolute !overflow-y-visible -top-0 -right-1 z-10">
-          <p className={`flex items-center justify-center rounded-full ${getColor()} p-2 text-[.6rem] text-gray-1`}>{content}</p>
+          <div className={`flex items-center justify-center rounded-full ${getColor()} p-2 text-[.6rem] text-gray-1`}>{content}</div>
         </div>
         {children}
       </div>

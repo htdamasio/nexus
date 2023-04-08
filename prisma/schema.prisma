@@ -39,6 +39,14 @@ enum BookStatus {
   NEEDADJUST
 }
 
+enum ReadingStatus {
+  TOREAD
+  READING
+  READ
+  REREADING
+  DROPPED
+}
+
 model Tag {
   id          Int      @id @default(autoincrement())
   name        String   @db.TinyText
@@ -63,12 +71,36 @@ model User {
   gender        Gender    @default(NONE)
   role          Role      @default(USER)
   emailVerified DateTime?
+  s3Image       String?
   image         String?
   accounts      Account[]
   sessions      Session[]
   books         Book[]
   reviews       Review[]
   comments      Comment[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+  selectedBooks SelectedBooks[]
+}
+
+model SelectedBooks {
+  user            User   @relation(fields: [userid], references: [id], onDelete: Cascade)
+  userid          String
+  book            Book   @relation(fields: [bookid], references: [id], onDelete: Cascade)
+  bookid          String
+  
+  status          ReadingStatus
+  currentChapter  Chapter? @relation(fields: [chapterid], references: [id])
+  chapterid       String?
+  
+  selectToRead    DateTime?
+  startReading    DateTime?
+  completeReading DateTime?
+
+  @@id([userid, bookid])
+  @@index([userid])
+  @@index([bookid])
+  @@index([chapterid])
 }
 
 model Book {
@@ -79,11 +111,16 @@ model Book {
   status        BookStatus @default(ONAPPROVAL)
   tags          Tag[]
   genres        Genre[]
-  author        User       @relation(fields: [authorid], references: [id])
+  author        User       @relation(fields: [authorid], references: [id], onDelete: Cascade)
   authorid      String         
   chapters      Chapter[]
   reviews       Review[]
   adminNotes    String?   @db.Text
+  published     Boolean   @default(false)
+  publisedAt    DateTime?
+  completed     Boolean   @default(false)
+  completedAt   DateTime?
+  selectedBooks SelectedBooks[]  
 
   @@index([authorid])
 }
@@ -97,6 +134,7 @@ model Chapter {
   bookId        String
   order         Int       @db.Int
   comments      Comment[]
+  selectedBooks SelectedBooks[]
   
   @@index([bookId])
 }

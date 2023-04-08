@@ -11,7 +11,7 @@ export default function Applicationlayout({
       <div className="w-full h-full bg-gray-15 dark:bg-gray-1">
         <Header />
           {children}
-        <MobileFooterMenu/>
+        {/* <MobileFooterMenu/> */}
       </div>
     </section>
   );

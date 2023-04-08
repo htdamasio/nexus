@@ -49,7 +49,7 @@ export function Header() {
         <div className="flex flex-1 gap-2 lg:gap-0 lg:justify-end items-center">
           <div className="lg:hidden font-montserrat font-extrabold text-4xl text-nexus-8">N</div>
           <div className="hidden lg:block lg:flex-1 lg:mx-3">
-            {/* <Autocomplete  options={books}/> */}
+            <Autocomplete  options={books}/>
           </div>
           {
             session?.user ?
@@ -59,15 +59,14 @@ export function Header() {
                 className="w-7 h-7 cursor-pointer lg:hidden text-[#121212] dark:text-[#fafafa]"
               />
               <Menu as="div" className="relative inline-block text-left ">
-                  <div>
+                  <div className='relative w-8 h-8'>
                   <Menu.Button className="inline-flex w-full justify-center">
                   {session.user.image ?
                    <Image
                     className="rounded-[9999px] focus:ring-purple-300 border-none" 
                     alt="User image" 
                     src={session.user.image} 
-                    width={30} 
-                    height={30}
+                    fill
                   />
                    :
                   <UserCircle weight='light' className="w-8 h-8 text-[#121212] dark:text-[#fafafa]"/>
@@ -89,64 +88,71 @@ export function Header() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-gray-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="px-1 py-1 ">
+                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-1 divide-opacity-10 dark:divide-gray-14 dark:divide-opacity-10 rounded-md bg-white dark:bg-gray-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="px-1 py-1">
                       <Menu.Item>
                         {({ active }) => (
-                          <button
-                            className={`${
-                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                          >
-                            <User className="mr-2 w-4 h-4"/>
-                            My Profile
-                          </button>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`${
-                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                          >
-                            <Books className="mr-2 w-4 h-4"/>
-                            Library
-                          </button>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                      {({ active }) => (
-                          <button
-                            className={`${
-                              active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                          >
-                            <Link href='/nexus-auth/author-dashboard' className="flex flex-row flex-1 items-center">
-                            <BookOpen className="mr-2 w-4 h-4"/>
-                            Author Dashboard
-                            </Link>
-                          </button>
-                      )}
-                      </Menu.Item>
-                    </div>
-                    <div className="px-1 py-1 ">
-                      <Menu.Item>
-                        {({ active }) => (
+                          <Link href='/nexus-auth/profile' className="flex flex-row flex-1 items-center">
                             <button
                               className={`${
                                 active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
                               } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                             >
-                              <Link href='/admin' className="flex flex-row flex-1 items-center">
-                              <UserGear className="mr-2 w-4 h-4"/>
-                              Admin
-                              </Link>
+                              <User className="mr-2 w-4 h-4"/>
+                              My Profile
                             </button>
+                          </Link>
                         )}
                       </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link href='/nexus-auth/library' className="flex flex-row flex-1 items-center">
+                            <button
+                              className={`${
+                                active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                              } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            >
+                              <Books className="mr-2 w-4 h-4"/>
+                              Library
+                            </button>
+                          </Link>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                      {({ active }) => (
+                          <Link href='/nexus-auth/author-dashboard' className="flex flex-row flex-1 items-center">
+                            <button
+                              className={`${
+                                active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                              } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            >
+                              
+                              <BookOpen className="mr-2 w-4 h-4"/>
+                              Author Dashboard
+                          </button>
+                        </Link>
+                      )}
+                      </Menu.Item>
                     </div>
-                    <div className="px-1 py-1">
+                    {session.user.role === 'ADMIN' &&
+                      <div className="px-1 py-1 mx-2">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <Link href='/admin' className="flex flex-row flex-1 items-center">
+                              <button
+                                className={`${
+                                  active ? 'bg-nexus-9 text-gray-15 dark:bg-nexus-10 dark:text-gray-1' : 'text-gray-2 dark:text-gray-14'
+                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                              >
+                                <UserGear className="mr-2 w-4 h-4"/>
+                                Admin
+                              </button>
+                            </Link>
+                          )}
+                        </Menu.Item>
+                      </div>
+                    }
+                    <div className="px-1 py-1 mx-2">
                       <Menu.Item>
                         {({ active }) => (
                           <button

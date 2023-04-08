@@ -9,8 +9,8 @@ import { PerformDeletionOnS3Bucket } from "@/utils/backend/presignedURL";
 
 const bucketName = process.env.BUCKET_NAME
 const bucketRegion = process.env.BUCKET_REGION
-const accessKey = process.env.ACCESS_KEY ?? ''
-const secretAccessKey = process.env.SECRET_ACCESS_KEY ?? ''
+const accessKey = process.env.S3_ACCESS_KEY ?? ''
+const secretAccessKey = process.env.SECRET_S3_ACCESS_KEY ?? ''
 const secret = process.env.NEXTAUTH_SECRET
 
 const s3 = new S3Client({
@@ -201,7 +201,7 @@ export async function PUT(req: NextRequest,  { params }: { params: { id: string 
     // validate 
     const isValid = UpdateBookSchema.safeParse(bookData);
     if (!isValid.success) {
-      throw new Error(JSON.stringify({message: 'Invalid Data', errors: isValid.error}))
+      return new Response(JSON.stringify({ message: 'Invalid Data', success: false, errors: isValid.error }), { status: 400})
     }
 
     // delete chapter content from s3
@@ -255,6 +255,50 @@ export async function PUT(req: NextRequest,  { params }: { params: { id: string 
 
     return new Response(JSON.stringify({ message: 'book updated', success: true }), { status: 200})
   } else {
+    return new Response(JSON.stringify({ message: 'unauthenticated', success: false }), { status: 401}) 
+  }
+}
+
+export async function PATCH(req: NextRequest,  { params }: { params: { id: string }}) {
+  const token = await getToken({ req, secret })
+  if (token) {
+    const dataToUpdate = await req.json()
+    
+    const bookToUpdate = await prisma.book.findUnique({
+      where: {
+        id: params.id
+      },
+      select: {
+        author: {
+          select: {
+            email: true
+          }
+        }
+      }
+    })
+
+    if(!bookToUpdate) {
+      return new Response(JSON.stringify({ message: 'book not found', success: false }), { status: 404}) 
+    }
+
+    if(bookToUpdate.author.email != token.email) {
+      return new Response(JSON.stringify({ message: 'unauthorized', success: false }), { status: 401}) 
+    }
+
+    if(dataToUpdate.status) {
+      await prisma.book.update({
+        where: {
+          id: params.id
+        },
+        data: {
+          status: dataToUpdate.status
+        }
+      })
+    }
+
+    return new Response(JSON.stringify({ message: 'book updated', success: true }), { status: 200})
+  }
+  else {
     return new Response(JSON.stringify({ message: 'unauthenticated', success: false }), { status: 401}) 
   }
 }
